@@ -1,6 +1,8 @@
 # Python
 __pycache__/
 *.pyc
+*.py[cod]
+*$py.class
 
 # Virtual environment
 venv/
@@ -10,6 +12,9 @@ env/
 # Django
 db.sqlite3
 *.log
+*.egg-info/
+dist/
+build/
 
 # Environment variables
 .env
