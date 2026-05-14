@@ -17,3 +17,8 @@ python manage.py migrate
 python manage.py runserver
 ```
 
+### 3. Создание администратора
+
+```bash
+python manage.py createsuperuser
+```
