@@ -5,8 +5,8 @@ from urllib.request import urlopen
 
 from django.contrib.auth import authenticate, get_user_model, login, logout
 from django.views.decorators.csrf import csrf_exempt
-from rest_framework.decorators import api_view
 from rest_framework import status
+from rest_framework.decorators import api_view
 from rest_framework.response import Response
 
 from .forms import ContentItemForm
@@ -15,6 +15,30 @@ from .models import Category, ContentItem, SavedJoke
 
 JOKE_API_URL = 'https://v2.jokeapi.dev/joke/Programming,Misc,Pun'
 User = get_user_model()
+
+DEMO_CONTENT_FEED = [
+    {
+        'id': 'demo-1',
+        'title': 'Короткая шутка про разработчика',
+        'category': 'programming',
+        'content_type': 'joke',
+        'body': 'Разработчик обещал исправить баг за пять минут. Через час он уже переписывал архитектуру.',
+    },
+    {
+        'id': 'demo-2',
+        'title': 'История из офиса',
+        'category': 'stories',
+        'content_type': 'story',
+        'body': 'На планерке попросили придумать легкую задачу. Команда открыла backlog и замолчала.',
+    },
+    {
+        'id': 'demo-3',
+        'title': 'Шутка дня',
+        'category': 'daily',
+        'content_type': 'joke',
+        'body': 'Самая стабильная часть проекта - папка с временными файлами.',
+    },
+]
 
 
 def serialize_user(user):
@@ -201,8 +225,23 @@ def categories(request):
 @api_view(['GET', 'POST'])
 def content_items(request):
     if request.method == 'GET':
-        items = ContentItem.objects.filter(is_published=True).select_related('category')[:50]
-        return Response([serialize_content_item(item) for item in items])
+        category = request.query_params.get('category')
+        queryset = ContentItem.objects.filter(is_published=True).select_related('category')
+
+        if category and category != 'all':
+            queryset = queryset.filter(category__slug=category)
+
+        items = [serialize_content_item(item) for item in queryset[:50]]
+        categories_list = list(Category.objects.values_list('slug', flat=True))
+
+        if not items and not categories_list:
+            items = DEMO_CONTENT_FEED
+            categories_list = sorted({item['category'] for item in DEMO_CONTENT_FEED})
+
+            if category and category != 'all':
+                items = [item for item in items if item['category'] == category]
+
+        return Response({'items': items, 'categories': categories_list})
 
     form = ContentItemForm(request.data)
     if not form.is_valid():
