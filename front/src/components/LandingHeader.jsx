@@ -1,12 +1,7 @@
 export default function LandingHeader({ currentPath, onNavigate }) {
-  function handleNavigation(event, path) {
-    event.preventDefault();
-    onNavigate(path);
-  }
-
   return (
     <header className="landing-header" role="banner">
-      <a className="landing-header__brand" href="/" onClick={(event) => handleNavigation(event, '/')}>
+      <button className="landing-header__brand" type="button" onClick={() => onNavigate('/')}>
         <span className="landing-header__logo" aria-hidden="true">
           ☺
         </span>
@@ -14,14 +9,14 @@ export default function LandingHeader({ currentPath, onNavigate }) {
           <p className="landing-header__name">FunnyHub</p>
           <p className="landing-header__tagline">анекдоты и развлечения</p>
         </div>
-      </a>
+      </button>
       <nav className="landing-header__nav" aria-label="Основная навигация">
-        <a className={currentPath === '/' ? 'is-active' : ''} href="/" onClick={(event) => handleNavigation(event, '/')}>
+        <button className={currentPath === '/' ? 'is-active' : ''} type="button" onClick={() => onNavigate('/')}>
           Главная
-        </a>
-        <a className={currentPath === '/content' ? 'is-active' : ''} href="/content" onClick={(event) => handleNavigation(event, '/content')}>
+        </button>
+        <button className={currentPath === '/content' ? 'is-active' : ''} type="button" onClick={() => onNavigate('/content')}>
           Контент
-        </a>
+        </button>
       </nav>
       <p className="landing-header__badge">14+ · только хорошее настроение</p>
     </header>

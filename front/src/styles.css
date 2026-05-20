@@ -71,8 +71,14 @@ body {
   display: flex;
   align-items: center;
   gap: 14px;
+  padding: 0;
+  border: 0;
+  background: transparent;
   color: inherit;
+  font: inherit;
+  text-align: left;
   text-decoration: none;
+  cursor: pointer;
 }
 
 .landing-header__logo {
@@ -115,7 +121,7 @@ body {
   gap: 10px;
 }
 
-.landing-header__nav a {
+.landing-header__nav button {
   min-height: 38px;
   display: inline-flex;
   align-items: center;
@@ -124,11 +130,12 @@ body {
   border-radius: 999px;
   background: rgba(255, 248, 239, 0.16);
   color: var(--cream);
-  text-decoration: none;
+  font: inherit;
   font-weight: 800;
+  cursor: pointer;
 }
 
-.landing-header__nav a.is-active {
+.landing-header__nav button.is-active {
   background: var(--sun);
   color: var(--ink);
 }
