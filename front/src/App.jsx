@@ -1,3 +1,4 @@
+import ContentPage from './components/ContentPage.jsx';
 import LandingHeader from './components/LandingHeader.jsx';
 import LandingHero from './components/LandingHero.jsx';
 import RandomJoke from './components/RandomJoke.jsx';
@@ -12,6 +13,7 @@ function App() {
       <main className="landing__main">
         <LandingHero />
         <RandomJoke />
+        <ContentPage />
         <TeaserSection />
       </main>
       <LandingFooter />
