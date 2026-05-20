@@ -7,7 +7,8 @@ from rest_framework.decorators import api_view
 from rest_framework import status
 from rest_framework.response import Response
 
-from .models import SavedJoke
+from .forms import ContentItemForm
+from .models import Category, ContentItem, SavedJoke
 
 
 JOKE_API_URL = 'https://v2.jokeapi.dev/joke/Programming,Misc,Pun'
@@ -23,6 +24,29 @@ def serialize_saved_joke(joke):
         'text': joke.text,
         'source': joke.source,
         'created_at': joke.created_at.isoformat(),
+    }
+
+
+def serialize_category(category):
+    return {
+        'id': category.id,
+        'name': category.name,
+        'slug': category.slug,
+        'description': category.description,
+    }
+
+
+def serialize_content_item(item):
+    return {
+        'id': item.id,
+        'title': item.title,
+        'body': item.body,
+        'content_type': item.content_type,
+        'category': serialize_category(item.category) if item.category else None,
+        'author_name': item.author_name,
+        'is_published': item.is_published,
+        'created_at': item.created_at.isoformat(),
+        'updated_at': item.updated_at.isoformat(),
     }
 
 
@@ -46,6 +70,8 @@ def index(request):
             'health': '/api/health/',
             'random_joke': '/api/jokes/random/',
             'saved_jokes': '/api/jokes/saved/',
+            'categories': '/api/categories/',
+            'content': '/api/content/',
             'admin': '/admin/',
         },
     })
@@ -97,3 +123,23 @@ def saved_jokes(request):
         source=request.data.get('source', 'jokeapi'),
     )
     return Response(serialize_saved_joke(joke), status=status.HTTP_201_CREATED)
+
+
+@api_view(['GET'])
+def categories(request):
+    category_list = Category.objects.all()
+    return Response([serialize_category(category) for category in category_list])
+
+
+@api_view(['GET', 'POST'])
+def content_items(request):
+    if request.method == 'GET':
+        items = ContentItem.objects.filter(is_published=True).select_related('category')[:50]
+        return Response([serialize_content_item(item) for item in items])
+
+    form = ContentItemForm(request.data)
+    if not form.is_valid():
+        return Response(form.errors, status=status.HTTP_400_BAD_REQUEST)
+
+    item = form.save()
+    return Response(serialize_content_item(item), status=status.HTTP_201_CREATED)
