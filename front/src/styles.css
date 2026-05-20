@@ -259,6 +259,92 @@ body {
   box-shadow: none;
 }
 
+/* Meme editor */
+.meme-editor {
+  margin: 28px 0;
+  padding: 30px 28px;
+  border-radius: 20px;
+  border: 3px solid var(--ink);
+  background: var(--paper);
+  box-shadow: 8px 8px 0 rgba(26, 20, 48, 0.35);
+}
+
+.meme-editor__head {
+  margin-bottom: 20px;
+}
+
+.meme-editor__eyebrow {
+  margin: 0 0 6px;
+  color: var(--violet);
+  font-size: 0.78rem;
+  font-weight: 900;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+.meme-editor__title {
+  margin: 0;
+  font-family: "Fredoka", sans-serif;
+  font-size: clamp(1.55rem, 3vw, 2.1rem);
+}
+
+.meme-editor__workspace {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(240px, 320px);
+  gap: 22px;
+  align-items: start;
+}
+
+.meme-editor canvas {
+  display: block;
+  width: 100%;
+  height: auto;
+  border: 3px solid var(--ink);
+  border-radius: 16px;
+  background: var(--sun);
+}
+
+.meme-editor__controls {
+  display: grid;
+  gap: 14px;
+}
+
+.meme-editor__controls label {
+  display: grid;
+  gap: 6px;
+  color: var(--ink-soft);
+  font-weight: 900;
+}
+
+.meme-editor__controls input,
+.meme-editor__controls select {
+  min-height: 42px;
+  width: 100%;
+  border: 2px solid var(--ink);
+  border-radius: 12px;
+  padding: 0 12px;
+  background: #ffffff;
+  color: var(--ink);
+  font: inherit;
+  font-weight: 700;
+}
+
+.meme-editor__controls input[type="color"] {
+  padding: 4px;
+}
+
+.meme-editor__controls button {
+  min-height: 44px;
+  border: 2px solid var(--ink);
+  border-radius: 12px;
+  background: var(--coral);
+  color: #ffffff;
+  box-shadow: 4px 4px 0 var(--ink);
+  font: inherit;
+  font-weight: 900;
+  cursor: pointer;
+}
+
 /* Teaser */
 .teaser {
   margin-top: 24px;
@@ -378,6 +464,14 @@ body {
 
   .random-joke__button {
     flex: 1 1 140px;
+  }
+
+  .meme-editor {
+    padding: 22px;
+  }
+
+  .meme-editor__workspace {
+    grid-template-columns: 1fr;
   }
 
   .landing-hero {

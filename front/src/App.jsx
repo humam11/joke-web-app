@@ -1,5 +1,6 @@
 import LandingHeader from './components/LandingHeader.jsx';
 import LandingHero from './components/LandingHero.jsx';
+import MemeEditor from './components/MemeEditor.jsx';
 import RandomJoke from './components/RandomJoke.jsx';
 import TeaserSection from './components/TeaserSection.jsx';
 import LandingFooter from './components/LandingFooter.jsx';
@@ -12,6 +13,7 @@ function App() {
       <main className="landing__main">
         <LandingHero />
         <RandomJoke />
+        <MemeEditor />
         <TeaserSection />
       </main>
       <LandingFooter />
