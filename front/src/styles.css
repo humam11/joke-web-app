@@ -171,6 +171,86 @@ body {
   text-transform: lowercase;
 }
 
+/* Auth */
+.auth-panel {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(280px, 360px);
+  align-items: start;
+  gap: 24px;
+  margin: 10px 0 28px;
+  padding: 28px;
+  border: 3px solid rgba(255, 248, 239, 0.7);
+  border-radius: 20px;
+  background: rgba(26, 20, 48, 0.55);
+  color: var(--cream);
+}
+
+.auth-panel__eyebrow {
+  margin: 0 0 6px;
+  font-size: 0.78rem;
+  font-weight: 800;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--sun);
+}
+
+.auth-panel__title {
+  margin: 0;
+  font-family: "Fredoka", sans-serif;
+  font-size: clamp(1.5rem, 3vw, 2rem);
+}
+
+.auth-panel__text {
+  margin: 12px 0 0;
+  color: rgba(255, 248, 239, 0.86);
+  font-weight: 700;
+}
+
+.auth-panel__form {
+  display: grid;
+  gap: 10px;
+}
+
+.auth-panel__tabs {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+}
+
+.auth-panel__tabs button,
+.auth-panel__button {
+  min-height: 42px;
+  border: 2px solid var(--ink);
+  border-radius: 12px;
+  background: var(--paper);
+  color: var(--ink);
+  font: inherit;
+  font-weight: 900;
+  cursor: pointer;
+}
+
+.auth-panel__tabs .is-active,
+.auth-panel__button {
+  background: var(--sun);
+}
+
+.auth-panel__form input {
+  width: 100%;
+  min-height: 42px;
+  border: 2px solid transparent;
+  border-radius: 12px;
+  padding: 0 12px;
+  font: inherit;
+  font-weight: 700;
+}
+
+.auth-panel__message {
+  grid-column: 1 / -1;
+  margin: 0;
+  font-weight: 900;
+  color: var(--sun);
+}
+
 /* Random joke */
 .random-joke {
   display: grid;
@@ -368,6 +448,11 @@ body {
   }
 
   .random-joke {
+    grid-template-columns: 1fr;
+    padding: 22px;
+  }
+
+  .auth-panel {
     grid-template-columns: 1fr;
     padding: 22px;
   }

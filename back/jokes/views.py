@@ -3,6 +3,8 @@ from urllib.error import URLError
 from urllib.parse import urlencode
 from urllib.request import urlopen
 
+from django.contrib.auth import authenticate, get_user_model, login, logout
+from django.views.decorators.csrf import csrf_exempt
 from rest_framework.decorators import api_view
 from rest_framework import status
 from rest_framework.response import Response
@@ -12,6 +14,18 @@ from .models import Category, ContentItem, SavedJoke
 
 
 JOKE_API_URL = 'https://v2.jokeapi.dev/joke/Programming,Misc,Pun'
+User = get_user_model()
+
+
+def serialize_user(user):
+    if not user.is_authenticated:
+        return None
+
+    return {
+        'id': user.id,
+        'username': user.username,
+        'email': user.email,
+    }
 
 
 def serialize_saved_joke(joke):
@@ -68,6 +82,10 @@ def index(request):
         'status': 'running',
         'endpoints': {
             'health': '/api/health/',
+            'auth_me': '/api/auth/me/',
+            'auth_login': '/api/auth/login/',
+            'auth_register': '/api/auth/register/',
+            'auth_logout': '/api/auth/logout/',
             'random_joke': '/api/jokes/random/',
             'saved_jokes': '/api/jokes/saved/',
             'categories': '/api/categories/',
@@ -80,6 +98,55 @@ def index(request):
 @api_view(['GET'])
 def health_check(request):
     return Response({'status': 'ok', 'service': 'jokes-api'})
+
+
+@api_view(['GET'])
+def auth_me(request):
+    return Response({'user': serialize_user(request.user)})
+
+
+@csrf_exempt
+@api_view(['POST'])
+def auth_register(request):
+    username = request.data.get('username', '').strip()
+    password = request.data.get('password', '')
+    email = request.data.get('email', '').strip()
+
+    if len(username) < 3 or len(password) < 6:
+        return Response(
+            {'detail': 'Username must be 3+ chars and password must be 6+ chars.'},
+            status=status.HTTP_400_BAD_REQUEST,
+        )
+
+    if User.objects.filter(username=username).exists():
+        return Response({'detail': 'Username is already taken.'}, status=status.HTTP_400_BAD_REQUEST)
+
+    user = User.objects.create_user(username=username, email=email, password=password)
+    login(request, user)
+    return Response({'user': serialize_user(user)}, status=status.HTTP_201_CREATED)
+
+
+@csrf_exempt
+@api_view(['POST'])
+def auth_login(request):
+    user = authenticate(
+        request,
+        username=request.data.get('username', '').strip(),
+        password=request.data.get('password', ''),
+    )
+
+    if user is None:
+        return Response({'detail': 'Invalid username or password.'}, status=status.HTTP_400_BAD_REQUEST)
+
+    login(request, user)
+    return Response({'user': serialize_user(user)})
+
+
+@csrf_exempt
+@api_view(['POST'])
+def auth_logout(request):
+    logout(request)
+    return Response({'user': None})
 
 
 @api_view(['GET'])
