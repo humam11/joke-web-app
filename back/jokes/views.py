@@ -12,6 +12,30 @@ from .models import SavedJoke
 
 JOKE_API_URL = 'https://v2.jokeapi.dev/joke/Programming,Misc,Pun'
 
+CONTENT_FEED = [
+    {
+        'id': 1,
+        'title': 'Короткая шутка про разработчика',
+        'category': 'programming',
+        'type': 'joke',
+        'body': 'Разработчик обещал исправить баг за пять минут. Через час он уже переписывал архитектуру.',
+    },
+    {
+        'id': 2,
+        'title': 'История из офиса',
+        'category': 'stories',
+        'type': 'story',
+        'body': 'На планерке попросили придумать легкую задачу. Команда дружно открыла backlog и замолчала.',
+    },
+    {
+        'id': 3,
+        'title': 'Шутка дня',
+        'category': 'daily',
+        'type': 'joke',
+        'body': 'Самая стабильная часть проекта — папка с временными файлами.',
+    },
+]
+
 
 def serialize_saved_joke(joke):
     return {
@@ -46,6 +70,7 @@ def index(request):
             'health': '/api/health/',
             'random_joke': '/api/jokes/random/',
             'saved_jokes': '/api/jokes/saved/',
+            'content_feed': '/api/content/',
             'admin': '/admin/',
         },
     })
@@ -97,3 +122,16 @@ def saved_jokes(request):
         source=request.data.get('source', 'jokeapi'),
     )
     return Response(serialize_saved_joke(joke), status=status.HTTP_201_CREATED)
+
+
+@api_view(['GET'])
+def content_feed(request):
+    category = request.query_params.get('category')
+
+    if category and category != 'all':
+        items = [item for item in CONTENT_FEED if item['category'] == category]
+    else:
+        items = CONTENT_FEED
+
+    categories = sorted({item['category'] for item in CONTENT_FEED})
+    return Response({'items': items, 'categories': categories})
