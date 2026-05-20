@@ -1,5 +1,3 @@
-import { useEffect, useState } from 'react';
-
 import AuthPanel from './components/AuthPanel.jsx';
 import ContentPage from './components/ContentPage.jsx';
 import LandingHeader from './components/LandingHeader.jsx';
@@ -10,45 +8,35 @@ import TeaserSection from './components/TeaserSection.jsx';
 import LandingFooter from './components/LandingFooter.jsx';
 
 function App() {
-  const [path, setPath] = useState(window.location.pathname);
+  const path = window.location.pathname;
 
-  useEffect(() => {
-    function handlePopState() {
-      setPath(window.location.pathname);
+  function renderPage() {
+    if (path === '/auth') {
+      return <AuthPanel />;
     }
 
-    window.addEventListener('popstate', handlePopState);
-    return () => window.removeEventListener('popstate', handlePopState);
-  }, []);
-
-  function navigate(nextPath) {
-    if (window.location.pathname !== nextPath) {
-      window.history.pushState({}, '', nextPath);
+    if (path === '/content') {
+      return <ContentPage />;
     }
 
-    setPath(nextPath);
-    window.scrollTo({ top: 0, behavior: 'smooth' });
+    if (path === '/meme') {
+      return <MemeEditor />;
+    }
+
+    return (
+      <>
+        <LandingHero />
+        <RandomJoke />
+        <TeaserSection />
+      </>
+    );
   }
-
-  const isContentPage = path === '/content';
 
   return (
     <div className="landing">
       <div className="landing__bg" aria-hidden="true" />
-      <LandingHeader currentPath={path} onNavigate={navigate} />
-      <main className="landing__main">
-        {isContentPage ? (
-          <ContentPage />
-        ) : (
-          <>
-            <LandingHero />
-            <AuthPanel />
-            <RandomJoke />
-            <MemeEditor />
-            <TeaserSection />
-          </>
-        )}
-      </main>
+      <LandingHeader currentPath={path} />
+      <main className="landing__main">{renderPage()}</main>
       <LandingFooter />
     </div>
   );

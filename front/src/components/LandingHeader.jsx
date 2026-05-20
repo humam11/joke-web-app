@@ -1,7 +1,7 @@
-export default function LandingHeader({ currentPath, onNavigate }) {
+export default function LandingHeader({ currentPath }) {
   return (
     <header className="landing-header" role="banner">
-      <button className="landing-header__brand" type="button" onClick={() => onNavigate('/')}>
+      <a className="landing-header__brand" href="/">
         <span className="landing-header__logo" aria-hidden="true">
           ☺
         </span>
@@ -9,14 +9,20 @@ export default function LandingHeader({ currentPath, onNavigate }) {
           <p className="landing-header__name">FunnyHub</p>
           <p className="landing-header__tagline">анекдоты и развлечения</p>
         </div>
-      </button>
+      </a>
       <nav className="landing-header__nav" aria-label="Основная навигация">
-        <button className={currentPath === '/' ? 'is-active' : ''} type="button" onClick={() => onNavigate('/')}>
+        <a className={currentPath === '/' ? 'is-active' : ''} href="/">
           Главная
-        </button>
-        <button className={currentPath === '/content' ? 'is-active' : ''} type="button" onClick={() => onNavigate('/content')}>
+        </a>
+        <a className={currentPath === '/auth' ? 'is-active' : ''} href="/auth">
+          Аккаунт
+        </a>
+        <a className={currentPath === '/content' ? 'is-active' : ''} href="/content">
           Контент
-        </button>
+        </a>
+        <a className={currentPath === '/meme' ? 'is-active' : ''} href="/meme">
+          Мемы
+        </a>
       </nav>
       <p className="landing-header__badge">14+ · только хорошее настроение</p>
     </header>

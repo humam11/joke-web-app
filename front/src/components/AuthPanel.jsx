@@ -10,12 +10,16 @@ export default function AuthPanel() {
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   async function request(path, options = {}) {
+    const headers = options.body
+      ? {
+          'Content-Type': 'application/json',
+          ...(options.headers ?? {}),
+        }
+      : options.headers;
+
     const response = await fetch(`${API_BASE_URL}${path}`, {
       credentials: 'include',
-      headers: {
-        'Content-Type': 'application/json',
-        ...(options.headers ?? {}),
-      },
+      headers,
       ...options,
     });
     const data = await response.json();
@@ -47,9 +51,19 @@ export default function AuthPanel() {
   }
 
   async function signOut() {
-    const data = await request('/auth/logout/', { method: 'POST', body: '{}' });
-    setUser(data.user);
-    setMessage('Вы вышли из аккаунта');
+    setIsSubmitting(true);
+    setMessage('');
+
+    try {
+      const data = await request('/auth/logout/', { method: 'POST' });
+      setUser(data.user);
+      setForm({ username: '', email: '', password: '' });
+      setMessage('Вы вышли из аккаунта');
+    } catch (error) {
+      setMessage(error.message);
+    } finally {
+      setIsSubmitting(false);
+    }
   }
 
   useEffect(() => {
@@ -71,7 +85,7 @@ export default function AuthPanel() {
       </div>
 
       {user ? (
-        <button className="auth-panel__button" type="button" onClick={signOut}>
+        <button className="auth-panel__button" type="button" onClick={signOut} disabled={isSubmitting}>
           Выйти
         </button>
       ) : (
