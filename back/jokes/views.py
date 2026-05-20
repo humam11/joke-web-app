@@ -4,6 +4,7 @@ from urllib.parse import urlencode
 from urllib.request import urlopen
 
 from django.contrib.auth import authenticate, get_user_model, login, logout
+from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
 from rest_framework import status
 from rest_framework.decorators import api_view
@@ -167,10 +168,12 @@ def auth_login(request):
 
 
 @csrf_exempt
-@api_view(['POST'])
 def auth_logout(request):
+    if request.method != 'POST':
+        return JsonResponse({'detail': 'Method not allowed.'}, status=405)
+
     logout(request)
-    return Response({'user': None})
+    return JsonResponse({'user': None})
 
 
 @api_view(['GET'])
