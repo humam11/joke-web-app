@@ -171,6 +171,94 @@ body {
   text-transform: lowercase;
 }
 
+/* Random joke */
+.random-joke {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: end;
+  gap: 24px;
+  margin: 10px 0 28px;
+  padding: 28px;
+  border: 3px solid var(--ink);
+  border-radius: 20px;
+  background: var(--paper);
+  box-shadow: 8px 8px 0 rgba(26, 20, 48, 0.35);
+}
+
+.random-joke__content {
+  min-width: 0;
+}
+
+.random-joke__eyebrow {
+  margin: 0 0 6px;
+  font-size: 0.78rem;
+  font-weight: 800;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--violet);
+}
+
+.random-joke__title {
+  margin: 0;
+  font-family: "Fredoka", sans-serif;
+  font-size: clamp(1.5rem, 3vw, 2.1rem);
+  color: var(--ink);
+}
+
+.random-joke__text {
+  margin: 14px 0 0;
+  min-height: 70px;
+  white-space: pre-line;
+  color: var(--ink-soft);
+  font-size: 1.08rem;
+  font-weight: 700;
+}
+
+.random-joke__meta,
+.random-joke__message {
+  margin: 14px 0 0;
+  font-size: 0.9rem;
+  font-weight: 800;
+}
+
+.random-joke__meta {
+  color: var(--coral);
+}
+
+.random-joke__message {
+  color: var(--violet);
+}
+
+.random-joke__actions {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: 10px;
+}
+
+.random-joke__button {
+  min-height: 44px;
+  padding: 0 18px;
+  border: 2px solid var(--ink);
+  border-radius: 12px;
+  background: var(--sun);
+  color: var(--ink);
+  box-shadow: 4px 4px 0 var(--ink);
+  font: inherit;
+  font-weight: 900;
+  cursor: pointer;
+}
+
+.random-joke__button--secondary {
+  background: var(--mint);
+}
+
+.random-joke__button:disabled {
+  cursor: not-allowed;
+  opacity: 0.6;
+  box-shadow: none;
+}
+
 /* Teaser */
 .teaser {
   margin-top: 24px;
@@ -277,6 +365,19 @@ body {
   .landing-header {
     flex-direction: column;
     align-items: flex-start;
+  }
+
+  .random-joke {
+    grid-template-columns: 1fr;
+    padding: 22px;
+  }
+
+  .random-joke__actions {
+    justify-content: stretch;
+  }
+
+  .random-joke__button {
+    flex: 1 1 140px;
   }
 
   .landing-hero {
