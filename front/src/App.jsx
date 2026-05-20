@@ -1,15 +1,19 @@
+import LandingHeader from './components/LandingHeader.jsx';
+import LandingHero from './components/LandingHero.jsx';
+import TeaserSection from './components/TeaserSection.jsx';
+import LandingFooter from './components/LandingFooter.jsx';
+
 function App() {
   return (
-    <main className="page">
-      <section className="intro">
-        <p className="eyebrow">FunnyHub</p>
-        <h1>Сайт с анекдотами</h1>
-        <p className="lead">
-          React-окружение готово. Здесь можно собирать интерфейс для просмотра,
-          поиска и публикации шуток.
-        </p>
-      </section>
-    </main>
+    <div className="landing">
+      <div className="landing__bg" aria-hidden="true" />
+      <LandingHeader />
+      <main className="landing__main">
+        <LandingHero />
+        <TeaserSection />
+      </main>
+      <LandingFooter />
+    </div>
   );
 }
 
