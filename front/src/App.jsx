@@ -8,17 +8,24 @@ import TeaserSection from './components/TeaserSection.jsx';
 import LandingFooter from './components/LandingFooter.jsx';
 
 function App() {
+  const isContentPage = window.location.pathname === '/content';
+
   return (
     <div className="landing">
       <div className="landing__bg" aria-hidden="true" />
       <LandingHeader />
       <main className="landing__main">
-        <LandingHero />
-        <AuthPanel />
-        <RandomJoke />
-        <ContentPage />
-        <MemeEditor />
-        <TeaserSection />
+        {isContentPage ? (
+          <ContentPage />
+        ) : (
+          <>
+            <LandingHero />
+            <AuthPanel />
+            <RandomJoke />
+            <MemeEditor />
+            <TeaserSection />
+          </>
+        )}
       </main>
       <LandingFooter />
     </div>
