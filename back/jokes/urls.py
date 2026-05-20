@@ -1,9 +1,11 @@
 from django.urls import path
 
-from .views import health_check, random_joke, saved_jokes
+from .views import categories, content_items, health_check, random_joke, saved_jokes
 
 urlpatterns = [
     path('health/', health_check, name='health-check'),
     path('jokes/random/', random_joke, name='random-joke'),
     path('jokes/saved/', saved_jokes, name='saved-jokes'),
+    path('categories/', categories, name='categories'),
+    path('content/', content_items, name='content-items'),
 ]
