@@ -150,7 +150,7 @@ def saved_jokes(request):
 
 
 @api_view(['GET'])
-<<<<<<< HEAD
+
 def categories(request):
     category_list = Category.objects.all()
     return Response([serialize_category(category) for category in category_list])
@@ -168,7 +168,7 @@ def content_items(request):
 
     item = form.save()
     return Response(serialize_content_item(item), status=status.HTTP_201_CREATED)
-=======
+
 def content_feed(request):
     category = request.query_params.get('category')
 
@@ -179,4 +179,4 @@ def content_feed(request):
 
     categories = sorted({item['category'] for item in CONTENT_FEED})
     return Response({'items': items, 'categories': categories})
->>>>>>> b0d2c50 (Add content feed page)
+
