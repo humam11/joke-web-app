@@ -506,6 +506,10 @@ body {
   margin-top: 22px;
 }
 
+.content-page__grid--single {
+  grid-template-columns: 1fr;
+}
+
 .content-card {
   min-height: 170px;
   padding: 18px;
@@ -532,6 +536,126 @@ body {
   margin: 12px 0 0;
   color: var(--ink-soft);
   font-weight: 700;
+}
+
+.comments-panel {
+  display: grid;
+  gap: 12px;
+  margin-top: 18px;
+  padding-top: 16px;
+  border-top: 2px dashed rgba(26, 20, 48, 0.28);
+}
+
+.comments-panel__head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.comments-panel__title {
+  margin: 0;
+  font-family: "Fredoka", sans-serif;
+  font-size: 1rem;
+}
+
+.comments-panel__count {
+  min-width: 28px;
+  min-height: 28px;
+  display: inline-grid;
+  place-items: center;
+  border: 2px solid var(--ink);
+  border-radius: 999px;
+  background: var(--mint);
+  color: var(--ink);
+  font-weight: 900;
+  font-size: 0.82rem;
+}
+
+.comments-panel__state,
+.comments-panel__message {
+  margin: 0;
+  color: var(--violet);
+  font-size: 0.9rem;
+  font-weight: 800;
+}
+
+.comments-panel__state a {
+  color: var(--coral);
+  font-weight: 900;
+}
+
+.comments-panel__list {
+  display: grid;
+  gap: 8px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.comments-panel__item {
+  padding: 10px 12px;
+  border: 2px solid rgba(26, 20, 48, 0.18);
+  border-radius: 12px;
+  background: rgba(255, 253, 248, 0.82);
+}
+
+.comments-panel__meta {
+  margin: 0 0 4px;
+  color: var(--coral);
+  font-size: 0.78rem;
+  font-weight: 900;
+}
+
+.comments-panel__body {
+  margin: 0;
+  color: var(--ink-soft);
+  font-weight: 700;
+  overflow-wrap: anywhere;
+}
+
+.comments-panel__form {
+  display: grid;
+  gap: 8px;
+}
+
+.comments-panel__form textarea {
+  width: 100%;
+  border: 2px solid var(--ink);
+  border-radius: 12px;
+  padding: 10px 12px;
+  background: #ffffff;
+  color: var(--ink);
+  font: inherit;
+  font-weight: 700;
+}
+
+.comments-panel__user {
+  margin: 0;
+  color: var(--ink-soft);
+  font-size: 0.86rem;
+  font-weight: 900;
+}
+
+.comments-panel__form textarea {
+  min-height: 82px;
+  resize: vertical;
+}
+
+.comments-panel__form button {
+  min-height: 40px;
+  border: 2px solid var(--ink);
+  border-radius: 12px;
+  background: var(--sun);
+  color: var(--ink);
+  font: inherit;
+  font-weight: 900;
+  cursor: pointer;
+}
+
+.comments-panel__form button:disabled {
+  cursor: not-allowed;
+  opacity: 0.6;
 }
 
 /* Teaser */

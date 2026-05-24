@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState } from 'react';
 
 import { apiFetch } from '../apiClient.js';
+import CommentsPanel from './CommentsPanel.jsx';
 
 function getCategoryKey(category) {
   if (!category) {
@@ -112,12 +113,13 @@ export default function ContentPage() {
       {status === 'loading' ? <p className="content-page__state">Загрузка...</p> : null}
       {status === 'error' ? <p className="content-page__state">Контент временно недоступен</p> : null}
 
-      <div className="content-page__grid">
+      <div className={activeCategory === 'all' ? 'content-page__grid content-page__grid--single' : 'content-page__grid'}>
         {items.map((item) => (
           <article className="content-card" key={item.id}>
             <p className="content-card__meta">{item.category} / {item.type}</p>
             <h3 className="content-card__title">{item.title}</h3>
             <p className="content-card__body">{item.body}</p>
+            <CommentsPanel commentsCount={item.comments_count} contentId={item.id} />
           </article>
         ))}
       </div>

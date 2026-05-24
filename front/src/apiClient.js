@@ -45,7 +45,12 @@ export async function apiFetch(path, options = {}) {
 
 export async function apiRequest(path, options = {}) {
   const response = await apiFetch(path, options);
-  const data = response.status === 204 ? null : await response.json();
+  const contentType = response.headers.get('Content-Type') ?? '';
+  const data = response.status === 204
+    ? null
+    : contentType.includes('application/json')
+      ? await response.json()
+      : { detail: await response.text() };
 
   if (!response.ok) {
     throw new Error(data?.detail ?? 'Request failed');

@@ -1,9 +1,8 @@
 from django.urls import path
 
+from .views import auth_login, auth_logout, auth_me, auth_register
+from .views import categories, content_comments, content_items
 from .views import health_check, index, random_joke, saved_jokes
-from .views import content_feed
-from .views import categories, content_items
-from .views import auth_login, auth_logout, auth_me, auth_register, health_check, random_joke, saved_jokes
 
 urlpatterns = [
     path('', index, name='api-index'),
@@ -16,4 +15,5 @@ urlpatterns = [
     path('jokes/saved/', saved_jokes, name='saved-jokes'),
     path('categories/', categories, name='categories'),
     path('content/', content_items, name='content-items'),
+    path('content/<int:content_id>/comments/', content_comments, name='content-comments'),
 ]

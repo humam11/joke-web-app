@@ -1,6 +1,6 @@
 from django.contrib import admin
 
-from .models import Category, ContentItem, SavedJoke
+from .models import Category, Comment, ContentItem, SavedJoke
 
 
 @admin.register(SavedJoke)
@@ -22,3 +22,10 @@ class ContentItemAdmin(admin.ModelAdmin):
     list_display = ('title', 'content_type', 'category', 'is_published', 'created_at')
     list_filter = ('content_type', 'category', 'is_published', 'created_at')
     search_fields = ('title', 'body', 'author_name')
+
+
+@admin.register(Comment)
+class CommentAdmin(admin.ModelAdmin):
+    list_display = ('content_item', 'author_name', 'user', 'is_visible', 'created_at')
+    list_filter = ('is_visible', 'created_at')
+    search_fields = ('body', 'author_name', 'user__username', 'content_item__title')

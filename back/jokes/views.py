@@ -10,8 +10,8 @@ from rest_framework.decorators import api_view
 from rest_framework import status
 from rest_framework.response import Response
 
-from .forms import ContentItemForm
-from .models import Category, ContentItem, SavedJoke
+from .forms import CommentForm, ContentItemForm
+from .models import Category, Comment, ContentItem, SavedJoke
 
 
 JOKE_API_URL = 'https://v2.jokeapi.dev/joke/Programming,Misc,Pun'
@@ -86,6 +86,19 @@ def serialize_content_item(item):
         'is_published': item.is_published,
         'created_at': item.created_at.isoformat(),
         'updated_at': item.updated_at.isoformat(),
+        'comments_count': item.comments.filter(is_visible=True).count(),
+    }
+
+
+def serialize_comment(comment):
+    author_name = comment.user.username if comment.user else comment.author_name
+
+    return {
+        'id': comment.id,
+        'content_item': comment.content_item_id,
+        'author_name': author_name or 'Гость',
+        'body': comment.body,
+        'created_at': comment.created_at.isoformat(),
     }
 
 
@@ -115,6 +128,7 @@ def index(request):
             'saved_jokes': '/api/jokes/saved/',
             'categories': '/api/categories/',
             'content': '/api/content/',
+            'comments': '/api/content/{id}/comments/',
             'admin': '/admin/',
         },
     })
@@ -247,6 +261,37 @@ def content_items(request):
 
     item = form.save()
     return Response(serialize_content_item(item), status=status.HTTP_201_CREATED)
+
+
+@api_view(['GET', 'POST'])
+def content_comments(request, content_id):
+    try:
+        content_item = ContentItem.objects.get(pk=content_id, is_published=True)
+    except ContentItem.DoesNotExist:
+        return Response({'detail': 'Content item not found.'}, status=status.HTTP_404_NOT_FOUND)
+
+    if request.method == 'GET':
+        comments = content_item.comments.filter(is_visible=True).select_related('user')[:50]
+        return Response({'comments': [serialize_comment(comment) for comment in comments]})
+
+    if not request.user.is_authenticated:
+        return Response({'detail': 'Authentication is required to add comments.'}, status=status.HTTP_401_UNAUTHORIZED)
+
+    form = CommentForm(request.data)
+    if not form.is_valid():
+        return Response(form.errors, status=status.HTTP_400_BAD_REQUEST)
+
+    comment = form.save(commit=False)
+    comment.content_item = content_item
+
+    if request.user.is_authenticated:
+        comment.user = request.user
+        comment.author_name = request.user.username
+    elif not comment.author_name.strip():
+        comment.author_name = 'Гость'
+
+    comment.save()
+    return Response(serialize_comment(comment), status=status.HTTP_201_CREATED)
 
 def content_feed(request):
     category = request.query_params.get('category')
