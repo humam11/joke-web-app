@@ -71,6 +71,8 @@ body {
   display: flex;
   align-items: center;
   gap: 14px;
+  color: inherit;
+  text-decoration: none;
 }
 
 .landing-header__logo {
@@ -95,8 +97,13 @@ body {
   color: rgba(255, 248, 239, 0.85);
 }
 
-.landing-header__badge {
-  margin: 0;
+.landing-header__nav {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.landing-header__nav a {
   padding: 8px 14px;
   border-radius: 999px;
   background: rgba(255, 248, 239, 0.18);
@@ -104,6 +111,20 @@ body {
   color: var(--cream);
   font-size: 0.85rem;
   font-weight: 600;
+  text-decoration: none;
+}
+
+.landing-header__nav a.is-active {
+  background: var(--sun);
+  border-color: var(--ink);
+  color: var(--ink);
+}
+
+.auth-page {
+  min-height: 60vh;
+  display: grid;
+  align-items: center;
+  padding: 44px 0;
 }
 
 /* Hero */

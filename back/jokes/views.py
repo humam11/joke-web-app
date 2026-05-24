@@ -5,6 +5,7 @@ from urllib.request import urlopen
 
 from django.contrib.auth import authenticate, get_user_model, login, logout
 from django.views.decorators.csrf import csrf_exempt
+from django.views.decorators.csrf import ensure_csrf_cookie
 from rest_framework.decorators import api_view
 from rest_framework import status
 from rest_framework.response import Response
@@ -125,6 +126,7 @@ def health_check(request):
 
 
 @api_view(['GET'])
+@ensure_csrf_cookie
 def auth_me(request):
     return Response({'user': serialize_user(request.user)})
 
@@ -226,8 +228,18 @@ def categories(request):
 @api_view(['GET', 'POST'])
 def content_items(request):
     if request.method == 'GET':
-        items = ContentItem.objects.filter(is_published=True).select_related('category')[:50]
-        return Response([serialize_content_item(item) for item in items])
+        items = ContentItem.objects.filter(is_published=True).select_related('category')
+        category = request.query_params.get('category')
+
+        if category and category != 'all':
+            items = items.filter(category__slug=category)
+
+        item_list = list(items[:50])
+        category_list = Category.objects.all()
+        return Response({
+            'items': [serialize_content_item(item) for item in item_list],
+            'categories': [serialize_category(category) for category in category_list],
+        })
 
     form = ContentItemForm(request.data)
     if not form.is_valid():

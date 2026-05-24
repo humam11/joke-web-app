@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL ?? 'http://127.0.0.1:8000/api';
+import { apiFetch } from '../apiClient.js';
 
 export default function AuthPanel() {
   const [mode, setMode] = useState('login');
@@ -10,7 +10,7 @@ export default function AuthPanel() {
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   async function request(path, options = {}) {
-    const response = await fetch(`${API_BASE_URL}${path}`, {
+    const response = await apiFetch(path, {
       credentials: 'include',
       headers: {
         'Content-Type': 'application/json',
