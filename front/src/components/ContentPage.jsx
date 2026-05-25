@@ -64,6 +64,7 @@ export default function ContentPage({ user = null }) {
   const [editingId, setEditingId] = useState(null);
   const [editingBody, setEditingBody] = useState('');
   const [adminMessage, setAdminMessage] = useState('');
+  const [searchQuery, setSearchQuery] = useState('');
   const isAdmin = Boolean(user?.is_admin);
 
   useEffect(() => {
@@ -95,6 +96,19 @@ export default function ContentPage({ user = null }) {
       }))
       .filter((category) => category.key),
   ], [categories]);
+
+  const filteredItems = useMemo(() => {
+    const query = searchQuery.trim().toLowerCase();
+    if (!query) {
+      return items;
+    }
+
+    return items.filter((item) => {
+      const body = String(item.body ?? '').toLowerCase();
+      const title = String(item.title ?? '').toLowerCase();
+      return body.includes(query) || title.includes(query);
+    });
+  }, [items, searchQuery]);
 
   function startEditing(item) {
     setEditingId(item.id);
@@ -158,12 +172,27 @@ export default function ContentPage({ user = null }) {
         </div>
       </div>
 
+      <label className="content-page__search">
+        <span className="content-page__search-label">Поиск по тексту и теме шутки</span>
+        <input
+          type="search"
+          value={searchQuery}
+          onChange={(event) => setSearchQuery(event.target.value)}
+          placeholder="Текст шутки или тема..."
+          aria-label="Поиск по тексту и теме шутки"
+        />
+      </label>
+
       {status === 'loading' ? <p className="content-page__state">Загрузка...</p> : null}
       {status === 'error' ? <p className="content-page__state">Контент временно недоступен</p> : null}
       {adminMessage ? <p className="content-page__state">{adminMessage}</p> : null}
 
+      {status === 'ready' && searchQuery.trim() && filteredItems.length === 0 ? (
+        <p className="content-page__state">По запросу «{searchQuery.trim()}» ничего не найдено</p>
+      ) : null}
+
       <div className="content-page__grid">
-        {items.map((item) => (
+        {filteredItems.map((item) => (
           <article className="content-card" key={item.id}>
             <div className="content-card__head">
               <div>

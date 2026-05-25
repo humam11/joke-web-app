@@ -572,6 +572,36 @@ body {
   font-size: clamp(1.55rem, 3vw, 2.1rem);
 }
 
+.content-page__search {
+  display: grid;
+  gap: 8px;
+  margin-top: 20px;
+  max-width: 420px;
+}
+
+.content-page__search-label {
+  color: var(--ink-soft);
+  font-weight: 900;
+  font-size: 0.9rem;
+}
+
+.content-page__search input {
+  min-height: 44px;
+  width: 100%;
+  border: 2px solid var(--ink);
+  border-radius: 12px;
+  padding: 0 14px;
+  background: #ffffff;
+  color: var(--ink);
+  font: inherit;
+  font-weight: 700;
+}
+
+.content-page__search input::placeholder {
+  color: var(--ink-soft);
+  opacity: 0.75;
+}
+
 .content-page__tabs {
   display: flex;
   flex-wrap: wrap;
