@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from 'react';
 
-import { apiFetch } from '../apiClient.js';
+import { apiFetch, apiRequest } from '../apiClient.js';
 import CommentsPanel from './CommentsPanel.jsx';
 
 function getCategoryKey(category) {
@@ -56,11 +56,15 @@ function normalizeContentPayload(data) {
   };
 }
 
-export default function ContentPage() {
+export default function ContentPage({ user = null }) {
   const [items, setItems] = useState([]);
   const [categories, setCategories] = useState([]);
   const [activeCategory, setActiveCategory] = useState('all');
   const [status, setStatus] = useState('loading');
+  const [editingId, setEditingId] = useState(null);
+  const [editingBody, setEditingBody] = useState('');
+  const [adminMessage, setAdminMessage] = useState('');
+  const isAdmin = Boolean(user?.is_admin);
 
   useEffect(() => {
     setStatus('loading');
@@ -92,6 +96,50 @@ export default function ContentPage() {
       .filter((category) => category.key),
   ], [categories]);
 
+  function startEditing(item) {
+    setEditingId(item.id);
+    setEditingBody(item.body);
+    setAdminMessage('');
+  }
+
+  function cancelEditing() {
+    setEditingId(null);
+    setEditingBody('');
+  }
+
+  async function saveJoke(itemId) {
+    setAdminMessage('');
+
+    try {
+      const data = await apiRequest(`/admin/content/${itemId}/`, {
+        method: 'PATCH',
+        body: JSON.stringify({ body: editingBody }),
+      });
+
+      const updatedItem = normalizeContentItem(data.item);
+      setItems((currentItems) => currentItems.map((item) => (
+        item.id === itemId ? updatedItem : item
+      )));
+      cancelEditing();
+    } catch (error) {
+      setAdminMessage(error.message);
+    }
+  }
+
+  async function deleteJoke(itemId) {
+    setAdminMessage('');
+
+    try {
+      await apiRequest(`/admin/content/${itemId}/`, { method: 'DELETE' });
+      setItems((currentItems) => currentItems.filter((item) => item.id !== itemId));
+      if (editingId === itemId) {
+        cancelEditing();
+      }
+    } catch (error) {
+      setAdminMessage(error.message);
+    }
+  }
+
   return (
     <section className="content-page" aria-labelledby="content-page-title">
       <div className="content-page__head">
@@ -112,14 +160,39 @@ export default function ContentPage() {
 
       {status === 'loading' ? <p className="content-page__state">Загрузка...</p> : null}
       {status === 'error' ? <p className="content-page__state">Контент временно недоступен</p> : null}
+      {adminMessage ? <p className="content-page__state">{adminMessage}</p> : null}
 
-      <div className={activeCategory === 'all' ? 'content-page__grid content-page__grid--single' : 'content-page__grid'}>
+      <div className="content-page__grid">
         {items.map((item) => (
           <article className="content-card" key={item.id}>
-            <p className="content-card__meta">{item.category} / {item.type}</p>
-            <h3 className="content-card__title">{item.title}</h3>
-            <p className="content-card__body">{item.body}</p>
-            <CommentsPanel commentsCount={item.comments_count} contentId={item.id} />
+            <div className="content-card__head">
+              <div>
+                <p className="content-card__meta">{item.category} / {item.type}</p>
+                <h3 className="content-card__title">{item.title}</h3>
+              </div>
+              {isAdmin ? (
+                <div className="content-card__admin-actions" aria-label="Управление шуткой">
+                  <button title="Редактировать текст" type="button" onClick={() => startEditing(item)}>
+                    ✎
+                  </button>
+                  <button className="content-card__delete" type="button" onClick={() => deleteJoke(item.id)}>
+                    Удалить
+                  </button>
+                </div>
+              ) : null}
+            </div>
+            {editingId === item.id ? (
+              <div className="content-card__editor">
+                <textarea value={editingBody} onChange={(event) => setEditingBody(event.target.value)} />
+                <div className="content-card__editor-actions">
+                  <button type="button" onClick={() => saveJoke(item.id)}>Сохранить</button>
+                  <button type="button" onClick={cancelEditing}>Отмена</button>
+                </div>
+              </div>
+            ) : (
+              <p className="content-card__body">{item.body}</p>
+            )}
+            {editingId === item.id ? null : <CommentsPanel commentsCount={item.comments_count} contentId={item.id} />}
           </article>
         ))}
       </div>

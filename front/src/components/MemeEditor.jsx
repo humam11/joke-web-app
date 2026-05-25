@@ -28,29 +28,47 @@ function drawWrappedText(context, text, x, y, maxWidth, lineHeight) {
   });
 }
 
+function drawCoverImage(context, image, width, height) {
+  const scale = Math.max(width / image.width, height / image.height);
+  const drawWidth = image.width * scale;
+  const drawHeight = image.height * scale;
+  const drawX = (width - drawWidth) / 2;
+  const drawY = (height - drawHeight) / 2;
+
+  context.drawImage(image, drawX, drawY, drawWidth, drawHeight);
+}
+
 export default function MemeEditor() {
   const canvasRef = useRef(null);
   const [template, setTemplate] = useState('classic');
   const [topText, setTopText] = useState('КОГДА СПРИНТ');
   const [bottomText, setBottomText] = useState('ЗАКРЫЛСЯ БЕЗ БАГОВ');
   const [textColor, setTextColor] = useState('#ffffff');
+  const [backgroundImage, setBackgroundImage] = useState(null);
 
   useEffect(() => {
     const canvas = canvasRef.current;
     const context = canvas.getContext('2d');
-    const [start, end] = templates[template];
-    const gradient = context.createLinearGradient(0, 0, canvas.width, canvas.height);
 
-    gradient.addColorStop(0, start);
-    gradient.addColorStop(1, end);
-    context.fillStyle = gradient;
-    context.fillRect(0, 0, canvas.width, canvas.height);
+    if (backgroundImage) {
+      drawCoverImage(context, backgroundImage, canvas.width, canvas.height);
+      context.fillStyle = 'rgba(26, 20, 48, 0.18)';
+      context.fillRect(0, 0, canvas.width, canvas.height);
+    } else {
+      const [start, end] = templates[template];
+      const gradient = context.createLinearGradient(0, 0, canvas.width, canvas.height);
 
-    context.fillStyle = 'rgba(26, 20, 48, 0.18)';
-    context.beginPath();
-    context.arc(150, 170, 90, 0, Math.PI * 2);
-    context.arc(470, 220, 125, 0, Math.PI * 2);
-    context.fill();
+      gradient.addColorStop(0, start);
+      gradient.addColorStop(1, end);
+      context.fillStyle = gradient;
+      context.fillRect(0, 0, canvas.width, canvas.height);
+
+      context.fillStyle = 'rgba(26, 20, 48, 0.18)';
+      context.beginPath();
+      context.arc(150, 170, 90, 0, Math.PI * 2);
+      context.arc(470, 220, 125, 0, Math.PI * 2);
+      context.fill();
+    }
 
     context.textAlign = 'center';
     context.lineJoin = 'round';
@@ -61,7 +79,27 @@ export default function MemeEditor() {
 
     drawWrappedText(context, topText.toUpperCase(), canvas.width / 2, 82, 520, 48);
     drawWrappedText(context, bottomText.toUpperCase(), canvas.width / 2, 390, 520, 48);
-  }, [bottomText, template, textColor, topText]);
+  }, [backgroundImage, bottomText, template, textColor, topText]);
+
+  function selectBackground(event) {
+    const file = event.target.files?.[0];
+    if (!file) {
+      setBackgroundImage(null);
+      return;
+    }
+
+    const reader = new FileReader();
+    reader.onload = () => {
+      const image = new Image();
+      image.onload = () => setBackgroundImage(image);
+      image.src = reader.result;
+    };
+    reader.readAsDataURL(file);
+  }
+
+  function clearBackground() {
+    setBackgroundImage(null);
+  }
 
   function downloadMeme() {
     const link = document.createElement('a');
@@ -98,6 +136,15 @@ export default function MemeEditor() {
               <option value="mint">Mint</option>
             </select>
           </label>
+          <label>
+            Фон мема
+            <input accept="image/*" onChange={selectBackground} type="file" />
+          </label>
+          {backgroundImage ? (
+            <button className="meme-editor__button--secondary" type="button" onClick={clearBackground}>
+              Убрать фон
+            </button>
+          ) : null}
           <label>
             Цвет текста
             <input value={textColor} onChange={(event) => setTextColor(event.target.value)} type="color" />
