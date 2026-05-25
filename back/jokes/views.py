@@ -4,6 +4,7 @@ from urllib.parse import urlencode
 from urllib.request import urlopen
 
 from django.contrib.auth import authenticate, get_user_model, login, logout
+from django.contrib.auth.hashers import check_password
 from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.csrf import ensure_csrf_cookie
 from rest_framework.decorators import api_view
@@ -26,7 +27,29 @@ def serialize_user(user):
         'id': user.id,
         'username': user.username,
         'email': user.email,
+        'is_admin': user.is_staff or user.is_superuser,
     }
+
+
+def serialize_admin_user(user):
+    return {
+        'id': user.id,
+        'username': user.username,
+        'email': user.email,
+        'is_active': user.is_active,
+        'is_admin': user.is_staff or user.is_superuser,
+        'date_joined': user.date_joined.isoformat(),
+    }
+
+
+def require_admin(request):
+    if not request.user.is_authenticated:
+        return Response({'detail': 'Authentication is required.'}, status=status.HTTP_401_UNAUTHORIZED)
+
+    if not (request.user.is_staff or request.user.is_superuser):
+        return Response({'detail': 'Admin access is required.'}, status=status.HTTP_403_FORBIDDEN)
+
+    return None
 
 CONTENT_FEED = [
     {
@@ -169,10 +192,17 @@ def auth_register(request):
 @csrf_exempt
 @api_view(['POST'])
 def auth_login(request):
+    username = request.data.get('username', '').strip()
+    password = request.data.get('password', '')
+    existing_user = User.objects.filter(username=username).first()
+
+    if existing_user and not existing_user.is_active and check_password(password, existing_user.password):
+        return Response({'detail': 'вы в бане, не забудьте взять веник'}, status=status.HTTP_403_FORBIDDEN)
+
     user = authenticate(
         request,
-        username=request.data.get('username', '').strip(),
-        password=request.data.get('password', ''),
+        username=username,
+        password=password,
     )
 
     if user is None:
@@ -292,6 +322,113 @@ def content_comments(request, content_id):
 
     comment.save()
     return Response(serialize_comment(comment), status=status.HTTP_201_CREATED)
+
+
+@api_view(['GET'])
+def admin_users(request):
+    admin_error = require_admin(request)
+    if admin_error:
+        return admin_error
+
+    users = User.objects.order_by('username')
+    return Response({'users': [serialize_admin_user(user) for user in users]})
+
+
+@api_view(['POST'])
+def admin_user_ban(request, user_id):
+    admin_error = require_admin(request)
+    if admin_error:
+        return admin_error
+
+    try:
+        user = User.objects.get(pk=user_id)
+    except User.DoesNotExist:
+        return Response({'detail': 'User not found.'}, status=status.HTTP_404_NOT_FOUND)
+
+    if user.id == request.user.id:
+        return Response({'detail': 'You cannot ban yourself.'}, status=status.HTTP_400_BAD_REQUEST)
+
+    if user.is_staff or user.is_superuser:
+        return Response({'detail': 'Admin users cannot be banned here.'}, status=status.HTTP_400_BAD_REQUEST)
+
+    user.is_active = False
+    user.save(update_fields=['is_active'])
+    return Response({'user': serialize_admin_user(user)})
+
+
+@api_view(['POST'])
+def admin_user_unban(request, user_id):
+    admin_error = require_admin(request)
+    if admin_error:
+        return admin_error
+
+    try:
+        user = User.objects.get(pk=user_id)
+    except User.DoesNotExist:
+        return Response({'detail': 'User not found.'}, status=status.HTTP_404_NOT_FOUND)
+
+    user.is_active = True
+    user.save(update_fields=['is_active'])
+    return Response({'user': serialize_admin_user(user)})
+
+
+@api_view(['POST'])
+def admin_create_joke(request):
+    admin_error = require_admin(request)
+    if admin_error:
+        return admin_error
+
+    body = request.data.get('body', '').strip()
+    category_id = request.data.get('category')
+    title = request.data.get('title', '').strip()
+
+    if not body:
+        return Response({'detail': 'Joke text is required.'}, status=status.HTTP_400_BAD_REQUEST)
+
+    try:
+        category = Category.objects.get(pk=category_id)
+    except (Category.DoesNotExist, TypeError, ValueError):
+        return Response({'detail': 'Valid category is required.'}, status=status.HTTP_400_BAD_REQUEST)
+
+    if not title:
+        title = f'{body[:57]}...' if len(body) > 60 else body
+
+    item = ContentItem.objects.create(
+        title=title,
+        body=body,
+        content_type=ContentItem.TYPE_JOKE,
+        category=category,
+        author_name=request.user.username,
+        is_published=True,
+    )
+
+    return Response({'item': serialize_content_item(item)}, status=status.HTTP_201_CREATED)
+
+
+@api_view(['PATCH', 'DELETE'])
+def admin_content_item_detail(request, content_id):
+    admin_error = require_admin(request)
+    if admin_error:
+        return admin_error
+
+    try:
+        item = ContentItem.objects.get(pk=content_id)
+    except ContentItem.DoesNotExist:
+        return Response({'detail': 'Content item not found.'}, status=status.HTTP_404_NOT_FOUND)
+
+    if request.method == 'DELETE':
+        item.delete()
+        return Response(status=status.HTTP_204_NO_CONTENT)
+
+    body = request.data.get('body', '').strip()
+
+    if not body:
+        return Response({'detail': 'Joke text is required.'}, status=status.HTTP_400_BAD_REQUEST)
+
+    item.body = body
+    item.save(update_fields=['body', 'updated_at'])
+    return Response({'item': serialize_content_item(item)})
+
 
 def content_feed(request):
     category = request.query_params.get('category')

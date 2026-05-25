@@ -1,4 +1,6 @@
-export default function LandingHeader({ currentPage = 'home' }) {
+export default function LandingHeader({ currentPage = 'home', user = null }) {
+  const isAdmin = Boolean(user?.is_admin);
+
   return (
     <header className="landing-header" role="banner">
       <a className="landing-header__brand" href="#">
@@ -17,6 +19,11 @@ export default function LandingHeader({ currentPage = 'home' }) {
         <a className={currentPage === 'auth' ? 'is-active' : ''} href="#auth">
           Вход
         </a>
+        {isAdmin ? (
+          <a className={currentPage === 'admin' ? 'is-active' : ''} href="#admin">
+            Админ-панель
+          </a>
+        ) : null}
       </nav>
     </header>
   );

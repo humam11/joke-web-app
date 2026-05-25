@@ -2,9 +2,9 @@ import { useEffect, useState } from 'react';
 
 import { apiFetch } from '../apiClient.js';
 
-export default function AuthPanel() {
+export default function AuthPanel({ onUserChange, user: currentUser = null }) {
   const [mode, setMode] = useState('login');
-  const [user, setUser] = useState(null);
+  const [user, setUser] = useState(currentUser);
   const [form, setForm] = useState({ username: '', email: '', password: '' });
   const [message, setMessage] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -38,6 +38,7 @@ export default function AuthPanel() {
         body: JSON.stringify(form),
       });
       setUser(data.user);
+      onUserChange?.(data.user);
       setMessage(mode === 'login' ? 'Вход выполнен' : 'Аккаунт создан');
     } catch (error) {
       setMessage(error.message);
@@ -49,14 +50,18 @@ export default function AuthPanel() {
   async function signOut() {
     const data = await request('/auth/logout/', { method: 'POST', body: '{}' });
     setUser(data.user);
+    onUserChange?.(data.user);
     setMessage('Вы вышли из аккаунта');
   }
 
   useEffect(() => {
     request('/auth/me/')
-      .then((data) => setUser(data.user))
+      .then((data) => {
+        setUser(data.user);
+        onUserChange?.(data.user);
+      })
       .catch(() => setUser(null));
-  }, []);
+  }, [onUserChange]);
 
   return (
     <section className="auth-panel" aria-labelledby="auth-panel-title">
@@ -84,11 +89,33 @@ export default function AuthPanel() {
               Регистрация
             </button>
           </div>
-          <input value={form.username} onChange={(event) => setForm({ ...form, username: event.target.value })} placeholder="Логин" required />
+          <input
+            autoComplete="username"
+            name="username"
+            value={form.username}
+            onChange={(event) => setForm({ ...form, username: event.target.value })}
+            placeholder="Логин"
+            required
+          />
           {mode === 'register' ? (
-            <input value={form.email} onChange={(event) => setForm({ ...form, email: event.target.value })} placeholder="Email" type="email" />
+            <input
+              autoComplete="email"
+              name="email"
+              value={form.email}
+              onChange={(event) => setForm({ ...form, email: event.target.value })}
+              placeholder="Email"
+              type="email"
+            />
           ) : null}
-          <input value={form.password} onChange={(event) => setForm({ ...form, password: event.target.value })} placeholder="Пароль" type="password" required />
+          <input
+            autoComplete={mode === 'login' ? 'current-password' : 'new-password'}
+            name="password"
+            value={form.password}
+            onChange={(event) => setForm({ ...form, password: event.target.value })}
+            placeholder="Пароль"
+            type="password"
+            required
+          />
           <button className="auth-panel__button" type="submit" disabled={isSubmitting}>
             {mode === 'login' ? 'Войти' : 'Создать'}
           </button>
