@@ -55,3 +55,19 @@ class ContentItem(models.Model):
 
     def __str__(self):
         return self.title
+
+
+class Comment(models.Model):
+    content_item = models.ForeignKey(ContentItem, on_delete=models.CASCADE, related_name='comments')
+    user = models.ForeignKey('auth.User', on_delete=models.SET_NULL, null=True, blank=True, related_name='comments')
+    author_name = models.CharField(max_length=80, blank=True)
+    body = models.TextField(max_length=1000)
+    is_visible = models.BooleanField(default=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ['created_at']
+
+    def __str__(self):
+        author = self.user.username if self.user else self.author_name or 'Guest'
+        return f'{author}: {self.body[:40]}'

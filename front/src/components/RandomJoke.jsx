@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL ?? 'http://127.0.0.1:8000/api';
+import { apiFetch } from '../apiClient.js';
 
 function getJokeText(joke) {
   if (!joke) {
@@ -25,7 +25,7 @@ export default function RandomJoke() {
     setMessage('');
 
     try {
-      const response = await fetch(`${API_BASE_URL}/jokes/random/`);
+      const response = await apiFetch('/jokes/random/');
 
       if (!response.ok) {
         throw new Error('Не удалось загрузить шутку');
@@ -49,7 +49,7 @@ export default function RandomJoke() {
     setMessage('');
 
     try {
-      const response = await fetch(`${API_BASE_URL}/jokes/saved/`, {
+      const response = await apiFetch('/jokes/saved/', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
